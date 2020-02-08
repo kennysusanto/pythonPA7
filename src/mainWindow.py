@@ -1,8 +1,9 @@
-import math
 from Tkinter import *
 from dataStructs import *
 from tkcolorpicker import *
 import tkFileDialog
+import math
+import os
 
 
 class mainWindow:
@@ -105,42 +106,38 @@ class mainWindow:
         self.shape = "polygon"
 
     def isconvex(self):
-        n = 0
+        # n = 0
         polylist = self.polylist.getPolys()
         # Algorithm dr sir Eddo
-        for poly in polylist:
-            id = self.getpid(n)
-            if id == "polygon":
-                nodelist = Polygon.getNodes(poly)
-                print("polygon " + str(n))
-                out = self.methodsirEddo(nodelist, poly)
-                if out == False:
-                    print("This polygon is CONCAVE")
-                else:
-                    print("This polygon is CONVEX")
-            n += 1
+        # for poly in polylist:
+        #     id = self.getpid(n)
+        #     if id == "polygon":
+        #         nodelist = Polygon.getNodes(poly)
+        #         print("polygon " + str(n))
+        #         out = self.method1(nodelist, poly)
+        #         if out == False:
+        #             print("This polygon is CONCAVE")
+        #         else:
+        #             print("This polygon is CONVEX")
+        #     n += 1
 
-        # Algorithm dr stackoverflow
-        print("===============Method stackoverflow==============")
+        # Algorithm 2
         n = 0
         for poly in polylist:
             id = self.getpid(n)
             if id == "polygon":
                 nodelist = Polygon.getNodes(poly)
                 print("polygon " + str(n))
-                self.stackoverflowmethod(nodelist)
+                self.method2(nodelist)
             n += 1
 
-    def methodsirEddo(self,
+    def method1(self,
                       nodelist,  # Type: list
                       poly  # Type: Polygon
                       ):
         if len(nodelist) < 3:
             print("error node less than 3")
             return False
-        # for nodes in nodelist:
-        #     node = nodes.getData()
-        #     print(node.x, node.y)
         else:
             F = poly.head
             EPrev = F
@@ -173,15 +170,12 @@ class mainWindow:
                 c2 = V1[0] * V2[1] - V1[1] * V2[0]
             return c2 * c1 < 0
 
-    def stackoverflowmethod(self,
-                 nodelist  #Type: Polygon
-                 ):
+    def method2(self,
+                            nodelist  # Type: Polygon
+                            ):
         if len(nodelist) < 3:
             print("error node less than 3")
             return False
-        # for nodes in nodelist:
-        #     node = nodes.getData()
-        #     print(node.x, node.y)
         else:
             wSign = 0
             xSign = 0
@@ -222,7 +216,7 @@ class mainWindow:
                     xSign -= 1
 
                 if xFlips > 2:
-                    print("This polygon is CONCAVE bruh")
+                    print("This polygon is CONCAVE")
                     return False
 
                 if ay > 0:
@@ -239,7 +233,7 @@ class mainWindow:
                     ySign -= 1
 
                 if yFlips > 2:
-                    print("This polygon is CONCAVE bruh")
+                    print("This polygon is CONCAVE")
                     return False
 
                 # Find out orientation of this pair of edges,
@@ -248,10 +242,10 @@ class mainWindow:
                 if wSign == 0 and w is not 0:
                     wSign = w
                 elif wSign > 0 and w < 0:
-                    print("This polygon is CONCAVE bruh")
+                    print("This polygon is CONCAVE")
                     return False
                 elif wSign < 0 and w > 0:
-                    print("This polygon is CONCAVE bruh")
+                    print("This polygon is CONCAVE")
                     return False
 
             # Final/wraparound sign flips
@@ -262,10 +256,10 @@ class mainWindow:
 
             # Concave polygons have 2 sign flips along each axis
             if xFlips is not 2 and yFlips is not 2:
-                print("This polygon is CONCAVE bruh")
+                print("This polygon is CONCAVE")
                 return False
             else:
-                print("This polygon is CONVEX bruh")
+                print("This polygon is CONVEX")
                 return True
 
     def calc_peri_area(self):
@@ -283,8 +277,9 @@ class mainWindow:
                     y1 = line[3]
                     d = math.sqrt((math.pow((y1 - y0), 2)) + (math.pow((x1 - x0), 2)))
                     perimeter += d
-                    area += (x1*y0 - y1*x0)
+                    area += (x1 * y0 - y1 * x0)
                     area /= 2
+                    area = abs(area)
                 print("Perimeter of polygon " + str(n) + " = " + str(perimeter) + " pixel")
                 print("Area of polygon " + str(n) + " = " + str(area) + " pixel^2")
             else:
@@ -301,19 +296,94 @@ class mainWindow:
             n += 1
 
     def open_file(self):
-        f = tkFileDialog.askopenfile(mode="r", filetypes=[('Text Files', '*.txt')])
-        if f is not None:
-            content = f.read()
-            print(content)
+        fname = tkFileDialog.askopenfilename(filetypes=[('Text Files', '*.txt')])
+        result = []
+        with open(fname, "r") as f:
+            string = f.read()
+            string = string.strip('\n')
+            splitted = string.split(os.linesep + os.linesep)
+            print("READING...")
+            print( "# of poly(s): " + str(len(splitted)))
+            for idx, i in enumerate(splitted):
+                splitted2 = i.split('\n')
+                print("poly " + str(idx) + " have: " + str(len(splitted2)) + " nodes")
+                tmparr = []
+                for j in splitted2:
+                    tmp = j.split(',')
+                    tmparr.append((int(tmp[0]), int(tmp[1])))
+                result.append(tmparr)
+
+        print(result)
+        self.reinit(result)
+
+    def reinit(self, list  # Type: list
+               ):
+        self.clear()
+        self.polylist = Polylist()
+        for poly in list:
+            newpoly = Polygon()
+            for node in poly:
+                np = Point(node[0], node[1])
+                newnode = Node(np)
+                newpoly.insertLast(newnode)
+            self.polylist.insertLast(newpoly)
+        self.polyArr = self.polylist.getPolys()
+        self.arrCounter = len(self.polyArr)
+        n = 0
+        lgt = len(self.polyArr)
+        while n < lgt:
+            poly = self.polyArr[n]
+            nodeslist = poly.getNodes()
+            m = 0
+            mgt = len(nodeslist)
+            while m < mgt:
+                if m == mgt-1:
+                    dt1 = nodeslist[m]
+                    dt2 = nodeslist[0]
+                    node1 = dt1.getData()
+                    node2 = dt2.getData()
+                    x1 = node1.x
+                    y1 = node1.y
+                    x2 = node2.x
+                    y2 = node2.y
+                    l = self.canvas.create_line(x1, y1, x2, y2, tags="pline")
+                    self.tmplines.append(l)
+                else:
+                    dt1 = nodeslist[m]
+                    dt2 = nodeslist[m + 1]
+                    node1 = dt1.getData()
+                    node2 = dt2.getData()
+                    x1 = node1.x
+                    y1 = node1.y
+                    x2 = node2.x
+                    y2 = node2.y
+                    l = self.canvas.create_line(x1, y1, x2, y2, tags="pline")
+                    self.tmplines.append(l)
+                m += 1
+            self.lineslist.append(self.tmplines)
+            self.tmplines = []
+            n += 1
+        for idx, p in enumerate(list):
+            self.plistbox.insert(END, idx)
 
     def save_file(self):
         f = tkFileDialog.asksaveasfile(mode="w", defaultextension=".txt")
+        fname = f.name
         if f is None:
             return
-        Polylist.getPolys()
-        text2save = "polygon"
-        f.write(text2save)
+        polyarr = self.polyArr
+        for poly in polyarr:
+            nodes = poly.getNodes()
+            for node in nodes:
+                data = node.getData()
+                x = data.x
+                y = data.y
+                f.write('{}, {}'.format(x, y))
+                f.write('\n')
+            #     print >> f, str(x) + ", " + str(y)
+            f.write('\n')
         f.close()
+        # os.system("gedit " + fname)
 
     def deleteObj(self):
         poly = self.polyArr[self.selectedP]
@@ -360,7 +430,6 @@ class mainWindow:
             Polyline.insertAfter(poly, prev, node)
             self.redrawLine()
 
-
     def redrawLine(self):
         print("function redrawline")
         del self.tmpcolor[:]
@@ -372,10 +441,7 @@ class mainWindow:
             self.tmpcolor.append(self.canvas.itemcget(item, "fill"))
             i += 1
 
-        # self.canvas.delete('node')
-        # self.canvas.delete('pline')
         self.canvas.delete('all')
-        # self.updateNode(self.selectedP)
         self.nlistbox.delete('0', 'end')
         k = 0
         m = len(self.polyArr)
@@ -812,7 +878,7 @@ class mainWindow:
         id = self.getpid(self.arrCounter)
         if id == "polygon":
             l = self.canvas.create_line(self.o.x, self.o.y, self.polyArr[self.arrCounter].head.data.x,
-                                    self.polyArr[self.arrCounter].head.data.y, tags="pline")
+                                        self.polyArr[self.arrCounter].head.data.y, tags="pline")
             self.tmplines.append(l)
         self.updatePoly()
         self.canvas.bindtags((self.canvas, self.master, "all"))
