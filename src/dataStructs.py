@@ -26,6 +26,86 @@ class Node:
 class Polygon:
     def __init__(self):
         self.head = None
+        self.id = "gon"
+        self.next = None
+
+    def setHead(self,
+                node  # Type: Node
+                ):
+        self.head = node
+
+    def getNodes(self):
+        printNode = self.head
+        tmplist = []
+        while printNode is not None:
+            tmplist.append(printNode)
+            printNode = printNode.next
+        return tmplist  # returns array of nodes
+
+    def printList(self):
+        printNode = self.head
+        while printNode is not None:
+            print(printNode.data.x, printNode.data.y)
+            printNode = printNode.next
+
+    def insertFirst(self,
+                    node  # Type: Node
+                    ):
+        newNode = node
+        newNode.next = self.head
+        self.head = newNode
+
+    def insertLast(self,
+                   node  # Type: Node
+                   ):
+        newNode = node
+        if self.head is None:
+            self.head = newNode
+            return
+        lastelement = self.head
+        while lastelement.next:
+            lastelement = lastelement.next
+        lastelement.next = newNode
+
+    def insertAfter(self,
+                    prevnode,  # Type: Node
+                    node  # Type: Node
+                    ):
+        if prevnode is None:
+            print("The mentioned node is absent")
+            return
+        newNode = node
+        newNode.next = prevnode.next
+        prevnode.next = newNode
+
+    def removeNode(self,
+                   node  # Type: Node
+                   ):
+        head = self.head
+        prev = None
+        if head is not None:
+            if head == node:
+                self.head = head.next
+                head = None
+                return
+
+        while head is not None:
+            if head == node:
+                break
+            prev = head
+            head = head.next
+
+        if head is None:
+            return
+
+        prev.next = head.next
+        head = None
+
+
+class Polyline:
+    def __init__(self):
+        self.head = None
+        self.id = "line"
         self.next = None
 
     def setHead(self,
@@ -110,7 +190,7 @@ class Polylist:
                 ):
         self.head = poly
 
-    def getPolygons(self):
+    def getPolys(self):
         printPolygon = self.head
         tmplist = []
         while printPolygon is not None:
@@ -148,7 +228,7 @@ class Polylist:
         newPolygon.next = prevpoly.next
         prevpoly.next = newPolygon
 
-    def removePolygon(self,
+    def removePolys(self,
                       poly  # Type: Polygon
                       ):
         head = self.head
