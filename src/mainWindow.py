@@ -298,6 +298,7 @@ class mainWindow:
     def open_file(self):
         fname = tkFileDialog.askopenfilename(filetypes=[('Text Files', '*.txt')])
         result = []
+        shapelist = []
         with open(fname, "r") as f:
             string = f.read()
             string = string.strip('\n')
@@ -306,6 +307,11 @@ class mainWindow:
             print( "# of poly(s): " + str(len(splitted)))
             for idx, i in enumerate(splitted):
                 splitted2 = i.split('\n')
+                pid = splitted2[0]
+                pid = "poly" + pid
+                print(pid)
+                shapelist.append(pid)
+                splitted2.pop(0)
                 print("poly " + str(idx) + " have: " + str(len(splitted2)) + " nodes")
                 tmparr = []
                 for j in splitted2:
@@ -314,19 +320,28 @@ class mainWindow:
                 result.append(tmparr)
 
         print(result)
-        self.reinit(result)
+        self.reinit(result, shapelist)
 
-    def reinit(self, list  # Type: list
+    def reinit(self, plist,  # Type: list
+               shapelist  # Type: list
                ):
         self.clear()
         self.polylist = Polylist()
-        for poly in list:
-            newpoly = Polygon()
-            for node in poly:
-                np = Point(node[0], node[1])
-                newnode = Node(np)
-                newpoly.insertLast(newnode)
-            self.polylist.insertLast(newpoly)
+        for i, poly in enumerate(plist):
+            if shapelist[i] == "polygon":
+                newpoly = Polygon()
+                for node in poly:
+                    np = Point(node[0], node[1])
+                    newnode = Node(np)
+                    newpoly.insertLast(newnode)
+                self.polylist.insertLast(newpoly)
+            elif shapelist[i] == "polyline":
+                newpoly = Polyline()
+                for node in poly:
+                    np = Point(node[0], node[1])
+                    newnode = Node(np)
+                    newpoly.insertLast(newnode)
+                self.polylist.insertLast(newpoly)
         self.polyArr = self.polylist.getPolys()
         self.arrCounter = len(self.polyArr)
         n = 0
@@ -337,33 +352,48 @@ class mainWindow:
             m = 0
             mgt = len(nodeslist)
             while m < mgt:
-                if m == mgt-1:
-                    dt1 = nodeslist[m]
-                    dt2 = nodeslist[0]
-                    node1 = dt1.getData()
-                    node2 = dt2.getData()
-                    x1 = node1.x
-                    y1 = node1.y
-                    x2 = node2.x
-                    y2 = node2.y
-                    l = self.canvas.create_line(x1, y1, x2, y2, tags="pline")
-                    self.tmplines.append(l)
-                else:
-                    dt1 = nodeslist[m]
-                    dt2 = nodeslist[m + 1]
-                    node1 = dt1.getData()
-                    node2 = dt2.getData()
-                    x1 = node1.x
-                    y1 = node1.y
-                    x2 = node2.x
-                    y2 = node2.y
-                    l = self.canvas.create_line(x1, y1, x2, y2, tags="pline")
-                    self.tmplines.append(l)
+                if shapelist[n] == "polygon":
+                    if m == mgt-1:
+                        dt1 = nodeslist[m]
+                        dt2 = nodeslist[0]
+                        node1 = dt1.getData()
+                        node2 = dt2.getData()
+                        x1 = node1.x
+                        y1 = node1.y
+                        x2 = node2.x
+                        y2 = node2.y
+                        l = self.canvas.create_line(x1, y1, x2, y2, tags="pline")
+                        self.tmplines.append(l)
+                    else:
+                        dt1 = nodeslist[m]
+                        dt2 = nodeslist[m + 1]
+                        node1 = dt1.getData()
+                        node2 = dt2.getData()
+                        x1 = node1.x
+                        y1 = node1.y
+                        x2 = node2.x
+                        y2 = node2.y
+                        l = self.canvas.create_line(x1, y1, x2, y2, tags="pline")
+                        self.tmplines.append(l)
+                elif shapelist[n] == "polyline":
+                    if m == mgt-1:
+                        print("end of polyline")
+                    else:
+                        dt1 = nodeslist[m]
+                        dt2 = nodeslist[m + 1]
+                        node1 = dt1.getData()
+                        node2 = dt2.getData()
+                        x1 = node1.x
+                        y1 = node1.y
+                        x2 = node2.x
+                        y2 = node2.y
+                        l = self.canvas.create_line(x1, y1, x2, y2, tags="pline")
+                        self.tmplines.append(l)
                 m += 1
             self.lineslist.append(self.tmplines)
             self.tmplines = []
             n += 1
-        for idx, p in enumerate(list):
+        for idx, p in enumerate(plist):
             self.plistbox.insert(END, idx)
 
     def save_file(self):
@@ -374,6 +404,7 @@ class mainWindow:
         polyarr = self.polyArr
         for poly in polyarr:
             nodes = poly.getNodes()
+            f.write(poly.id + '\n')
             for node in nodes:
                 data = node.getData()
                 x = data.x
