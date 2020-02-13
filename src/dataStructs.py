@@ -12,6 +12,7 @@ class Node:
                  data  # Type: Point
                  ):
         self.data = data
+        self.isEnd = False
         self.next = None
 
     def getData(self):
@@ -37,14 +38,14 @@ class Polygon:
     def getNodes(self):
         printNode = self.head
         tmplist = []
-        while printNode is not None:
+        while printNode.isEnd is not True:
             tmplist.append(printNode)
             printNode = printNode.next
         return tmplist  # returns array of nodes
 
     def printList(self):
         printNode = self.head
-        while printNode is not None:
+        while printNode.isEnd is not True:
             print(printNode.data.x, printNode.data.y)
             printNode = printNode.next
 
@@ -100,6 +101,16 @@ class Polygon:
 
         prev.next = head.next
         head = None
+
+    def setDone(self):
+        curr = self.head
+        if self.head is None:
+            return
+        else:
+            while curr.next:
+                curr = curr.next
+            curr.isEnd = True
+            curr.next = self.head
 
 
 class Polyline:
@@ -229,8 +240,8 @@ class Polylist:
         prevpoly.next = newPolygon
 
     def removePolys(self,
-                      poly  # Type: Polygon
-                      ):
+                    poly  # Type: Polygon
+                    ):
         head = self.head
         prev = None
         if head is not None:

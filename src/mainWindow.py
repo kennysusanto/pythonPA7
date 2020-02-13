@@ -4,6 +4,7 @@ from tkcolorpicker import *
 import tkFileDialog
 import math
 import os
+import tkMessageBox
 
 
 class mainWindow:
@@ -123,13 +124,18 @@ class mainWindow:
 
         # Algorithm 2
         n = 0
+        res = ""
         for poly in polylist:
             id = self.getpid(n)
             if id == "polygon":
                 nodelist = Polygon.getNodes(poly)
                 print("polygon " + str(n))
-                self.method2(nodelist)
+                if self.method2(nodelist):
+                    res += "polygon " + str(n) + " is Convex\n"
+                else:
+                    res += "polygon " + str(n) + " is Concave\n"
             n += 1
+        tkMessageBox.showinfo("Convex/Concave", res)
 
     def method1(self,
                       nodelist,  # Type: list
@@ -264,6 +270,7 @@ class mainWindow:
 
     def calc_peri_area(self):
         n = 0
+        resstr = ""
         for lineslist in self.lineslist:
             perimeter = 0
             area = 0
@@ -281,7 +288,9 @@ class mainWindow:
                     area /= 2
                     area = abs(area)
                 print("Perimeter of polygon " + str(n) + " = " + str(perimeter) + " pixel")
-                print("Area of polygon " + str(n) + " = " + str(area) + " pixel^2")
+                print("A polygon " + str(n) + " = " + str(area) + " pixel^2")
+                resstr = resstr + "P polygon " + str(n) + " = " + str(perimeter) + " pixel" + "\n" + \
+                         "A polygon " + str(n) + " = " + str(area) + " pixel^2" + "\n"
             else:
                 for item in lineslist:
                     line = self.canvas.coords(item)
@@ -293,7 +302,9 @@ class mainWindow:
                     perimeter += d
                 print("Perimeter of polyline " + str(n) + " = " + str(perimeter) + " pixel")
                 print("Polyline doesn't have area")
+                resstr = resstr + "P of polyline " + str(n) + " = " + str(perimeter) + " pixel" + "\n"
             n += 1
+        tkMessageBox.showinfo("Perimeter & Area", resstr)
 
     def open_file(self):
         fname = tkFileDialog.askopenfilename(filetypes=[('Text Files', '*.txt')])
@@ -911,6 +922,9 @@ class mainWindow:
             l = self.canvas.create_line(self.o.x, self.o.y, self.polyArr[self.arrCounter].head.data.x,
                                         self.polyArr[self.arrCounter].head.data.y, tags="pline")
             self.tmplines.append(l)
+            if self.polyArr[self.arrCounter].head is not None:
+                poly = self.polyArr[self.arrCounter]
+                poly.setDone()
         self.updatePoly()
         self.canvas.bindtags((self.canvas, self.master, "all"))
         item = self.canvas.find_withtag("LINE")
