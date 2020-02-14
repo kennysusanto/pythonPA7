@@ -41,6 +41,7 @@ class Polygon:
         while printNode.isEnd is not True:
             tmplist.append(printNode)
             printNode = printNode.next
+        tmplist.append(printNode) # adding last node where isEnd is True
         return tmplist  # returns array of nodes
 
     def printList(self):

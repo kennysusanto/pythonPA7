@@ -345,6 +345,7 @@ class mainWindow:
                     np = Point(node[0], node[1])
                     newnode = Node(np)
                     newpoly.insertLast(newnode)
+                newpoly.setDone() # set last node isEnd to True
                 self.polylist.insertLast(newpoly)
             elif shapelist[i] == "polyline":
                 newpoly = Polyline()
@@ -922,9 +923,7 @@ class mainWindow:
             l = self.canvas.create_line(self.o.x, self.o.y, self.polyArr[self.arrCounter].head.data.x,
                                         self.polyArr[self.arrCounter].head.data.y, tags="pline")
             self.tmplines.append(l)
-            if self.polyArr[self.arrCounter].head is not None:
-                poly = self.polyArr[self.arrCounter]
-                poly.setDone()
+
         self.updatePoly()
         self.canvas.bindtags((self.canvas, self.master, "all"))
         item = self.canvas.find_withtag("LINE")
@@ -935,6 +934,10 @@ class mainWindow:
         self.btn_poly.config(state=ACTIVE)
         self.btn_pointer.config(state=ACTIVE)
         self.btn_poli.config(state=ACTIVE)
+        if id == "polygon":
+            if self.polyArr[self.arrCounter].head is not None:
+                poly = self.polyArr[self.arrCounter]
+                poly.setDone()
 
     def create(self):
         self.canvas = Canvas(self.master, width=self.width, height=self.height, bg="#ffffff")
