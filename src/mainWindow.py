@@ -404,6 +404,7 @@ class mainWindow:
                 m += 1
             self.lineslist.append(self.tmplines)
             self.tmplines = []
+            self.tmpcolor.append("#000000")
             n += 1
         for idx, p in enumerate(plist):
             self.plistbox.insert(END, idx)
