@@ -355,7 +355,7 @@ class mainWindow:
                     newpoly.insertLast(newnode)
                 self.polylist.insertLast(newpoly)
         self.polyArr = self.polylist.getPolys()
-        self.arrCounter = len(self.polyArr)
+        self.arrCounter = len(self.polyArr) - 1
         n = 0
         lgt = len(self.polyArr)
         while n < lgt:
