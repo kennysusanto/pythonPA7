@@ -289,8 +289,8 @@ class mainWindow:
                     area = abs(area)
                 print("Perimeter of polygon " + str(n) + " = " + str(perimeter) + " pixel")
                 print("A polygon " + str(n) + " = " + str(area) + " pixel^2")
-                resstr = resstr + "P polygon " + str(n) + " = " + str(perimeter) + " pixel" + "\n" + \
-                         "A polygon " + str(n) + " = " + str(area) + " pixel^2" + "\n"
+                resstr = resstr + "Perimeter of polygon " + str(n) + " = " + str(perimeter) + " pixel" + "\n" + \
+                         "Area of polygon " + str(n) + " = " + str(area) + " pixel^2" + "\n"
             else:
                 for item in lineslist:
                     line = self.canvas.coords(item)
